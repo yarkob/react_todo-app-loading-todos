@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { FilterType } from '../types/FilterType';
-import { TodoType } from '../types/Todo';
+import { Todo } from '../types/Todo';
 import cs from 'classnames';
 
 interface Props {
   setFilterBy: Dispatch<SetStateAction<FilterType>>;
   filterBy: FilterType;
-  todos: TodoType[];
+  todos: Todo[];
 }
 
 export const Footer: React.FC<Props> = ({ setFilterBy, filterBy, todos }) => {

@@ -6,39 +6,33 @@ import { getTodos, USER_ID } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { FilterType } from './types/FilterType';
-import { TodoType } from './types/Todo';
+import { Todo } from './types/Todo';
 import cs from 'classnames';
 
+enum Error {
+  LoadTodos = 'Unable to load todos',
+  EmptyTitle = 'Title should not be empty',
+  AddTodo = 'Unable to add a todo',
+  DeleteTodo = 'Unable to delete a todo',
+  UpdateTodo = 'Unable to update a todo',
+}
+
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<TodoType[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.All);
-  const [error, setError] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let timerId = 0;
-
     getTodos()
-      .catch(dataError => {
-        if (dataError) {
-          setError(dataError);
+      .then(data => setTodos(data))
+      .catch(() => {
+        setError(Error.LoadTodos);
 
-          timerId = window.setTimeout(() => {
-            setError('');
-          }, 3000);
-
-          throw new Error(dataError);
-        }
-
-        return dataError;
-      })
-      .then(data => setTodos(data));
-
-    clearTimeout(timerId);
-    setIsSubmitted(false);
-  }, [isSubmitted]);
-
-  console.log(todos);
+        window.setTimeout(() => {
+          setError(null);
+        }, 3000);
+      });
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -46,8 +40,6 @@ export const App: React.FC = () => {
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-
-    setIsSubmitted(true);
   };
 
   return (
@@ -55,13 +47,16 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
+        {/* Add header to another component */}
         <header className="todoapp__header">
           {/* this button should have `active` class only if all todos are completed */}
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            data-cy="ToggleAllButton"
-          />
+          {!!todos.length && (
+            <button
+              type="button"
+              className="todoapp__toggle-all active"
+              data-cy="ToggleAllButton"
+            />
+          )}
 
           {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
@@ -77,13 +72,14 @@ export const App: React.FC = () => {
         <TodoList filterBy={filterBy} todos={todos} />
 
         {/* Hide the footer if there are no todos */}
-        {todos.length && (
+        {!!todos.length && (
           <Footer setFilterBy={setFilterBy} filterBy={filterBy} todos={todos} />
         )}
       </div>
 
       {/* DON'T use conditional rendering to hide the notification */}
       {/* Add the 'hidden' class to hide the message smoothly */}
+      {/* Add errors to another components */}
       <div
         data-cy="ErrorNotification"
         className={cs(
@@ -95,19 +91,10 @@ export const App: React.FC = () => {
       >
         <button data-cy="HideErrorButton" type="button" className="delete" />
         {/* show only one message at a time */}
-        {error && (
-          <div>
-            Unable to load todos
-            <br />
-          </div>
-        )}
-        {/*Title should not be empty*/}
-        {/*<br />*/}
-        {/*Unable to add a todo*/}
-        {/*<br />*/}
-        {/*Unable to delete a todo*/}
-        {/*<br />*/}
-        {/*Unable to update a todo*/}
+        <div>
+          {error}
+          <br />
+        </div>
       </div>
     </div>
   );

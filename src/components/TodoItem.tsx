@@ -6,7 +6,7 @@ interface Props {
   completed: boolean;
 }
 
-export const Todo: React.FC<Props> = ({ title, completed }) => {
+export const TodoItem: React.FC<Props> = ({ title, completed }) => {
   return (
     <div
       data-cy="Todo"
@@ -15,6 +15,8 @@ export const Todo: React.FC<Props> = ({ title, completed }) => {
       })}
     >
       <label className="todo__status-label">
+        {/* This comment is made because it fixes
+          "A form label must be associated with a control" error */}
         <input
           data-cy="TodoStatus"
           type="checkbox"

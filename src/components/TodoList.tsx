@@ -1,16 +1,16 @@
-import { Todo } from './Todo';
-import { TodoType } from '../types/Todo';
+import { TodoItem } from './TodoItem';
+import { Todo } from '../types/Todo';
 import { FilterType } from '../types/FilterType';
 
 interface Props {
   filterBy: FilterType;
-  todos: TodoType[];
+  todos: Todo[];
 }
 
 export const TodoList: React.FC<Props> = ({ filterBy, todos }) => {
-  const renderTodos = (filteredTodos: TodoType[]) => {
-    return filteredTodos.map((todo: TodoType) => (
-      <Todo key={todo.id} title={todo.title} completed={todo.completed} />
+  const renderTodos = (filteredTodos: Todo[]) => {
+    return filteredTodos.map((todo: Todo) => (
+      <TodoItem key={todo.id} title={todo.title} completed={todo.completed} />
     ));
   };
 
